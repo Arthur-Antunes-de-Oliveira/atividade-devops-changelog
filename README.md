@@ -21,4 +21,7 @@ A cada push na branch `main`, a Action gera automaticamente um número de versã
 ## Changelog
 
 <!-- CHANGELOG:START -->
+- `616f6ff` help — Arthur Antunes de Oliveira (2026-10-29)
+- `ddddf33` release.yml — Arthur Antunes de Oliveira (2026-10-22)
+- `18a5622` Create README.md — Arthur Antunes de Oliveira (2026-10-22)
 <!-- CHANGELOG:END -->
