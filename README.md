@@ -21,4 +21,3 @@ Assim, não precisa criar as versões manualmente.
 ## Changelog
 
 <!-- CHANGELOG:START -->
-<!-- CHANGELOG:END -->
