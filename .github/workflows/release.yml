@@ -3,37 +3,28 @@ name: Release
 on:
   push:
     branches: [main]
+    paths-ignore: ["README.md"]
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.rp.outputs.release_created }}
-      tag_name: ${{ steps.rp.outputs.tag_name }}
-    steps:
-      - uses: googleapis/release-please-action@v4
-        id: rp
-        with:
-          release-type: simple
-
-  package:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Gerar pacote
-        run: |
-          mkdir dist
-          zip -r "dist/meu-projeto-${{ needs.release-please.outputs.tag_name }}.zip" . \
-            -x ".git/*" ".github/*" "dist/*"
+      - name: Definir versao
+        run: echo "VERSION=v1.0.${{ github.run_number }}" >> $GITHUB_ENV
 
-      - name: Anexar pacote à release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ needs.release-please.outputs.tag_name }}" dist/*
+      - name: Gerar pacote
+        run: zip -r pacote.zip . -x ".git/*" ".github/*"
+
+      - name: Publicar release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: ${{ env.VERSION }}
+          target_commitish: ${{ github.sha }}
+          files: pacote.zip
+          generate_release_notes: true

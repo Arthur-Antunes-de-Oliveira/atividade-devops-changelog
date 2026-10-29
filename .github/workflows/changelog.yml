@@ -1,0 +1,40 @@
+name: Changelog
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["README.md"]
+
+permissions:
+  contents: write
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Atualizar changelog no README
+        run: |
+          python3 - <<'PY'
+          import re, subprocess
+          log = subprocess.check_output([
+              "git", "log", "--no-merges",
+              "--invert-grep", "--grep=changelog automatico",
+              "--pretty=format:- `%h` %s — %an (%ad)", "--date=short"
+          ], text=True)
+          txt = open("README.md", encoding="utf-8").read()
+          novo = "<!-- CHANGELOG:START -->\n" + log + "\n<!-- CHANGELOG:END -->"
+          txt = re.sub(r"<!-- CHANGELOG:START -->.*?<!-- CHANGELOG:END -->", novo, txt, flags=re.S)
+          open("README.md", "w", encoding="utf-8").write(txt)
+          PY
+
+      - name: Commit do README
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --cached --quiet || (git commit -m "docs: changelog automatico" && git push)
